@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW::xkcd.
 
+0.003   xx.xx.xx
+        * Removed unused method.
+
 0.002   14.02.12
         * We can now fetch the images!
         * fetch() method now returns both the image and the metadata.

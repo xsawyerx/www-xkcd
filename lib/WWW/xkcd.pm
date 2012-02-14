@@ -114,18 +114,16 @@ The asynchronous mode requires you have L<AnyEvent> and L<AnyEvent::HTTP>
 available. However, since it's just I<supported> and not I<crucial>, it is not
 declared as a prerequisite.
 
-Currently it retrieves the metadata of each comic, but it will probalby also
-fetch the actual comic in the next release.
-
-This module still hasn't materialized so some things might change, but probably
-not a lot, if at all.
-
 =head1 METHODS
 
 =head2 new
 
 Create a new L<WWW::xkcd> object.
 
+    # typical usage
+    my $xkcd = WWW::xkcd->new;
+
+    # it would be pointless to change these, but it's possible
     my $xkcd = WWW::xkcd->new(
         base_url => 'http://www.xkcd.com',
         infopath => 'info.0.json',
@@ -147,6 +145,20 @@ tuned.
 
     # using callbacks for a specific one
     $xkcd->fetch( 20, sub { my $comic = shift; ... } );
+
+=head1 NAMING
+
+Why would you call I<xkcd> with all lower cases? Simply because that's what
+Randall Munroe who writes xkcd prefers.
+
+Taken verbatim from L<http://www.xkcd.com/about>:
+
+    How do I write "xkcd"? There's nothing in Strunk and White about this.
+
+    For those of us pedantic enough to want a rule, here it is: The preferred
+    form is "xkcd", all lower-case. In formal contexts where a lowercase word
+    shouldn't start a sentence, "XKCD" is an okay alternative. "Xkcd" is
+    frowned upon.
 
 =head1 DEPENDENCIES
 

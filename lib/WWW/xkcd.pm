@@ -11,8 +11,8 @@ use HTTP::Tiny;
 sub new {
     my $class = shift;
     my %args  = (
-        baseurl => 'http://xkcd.com',
-        file    => 'info.0.json', # FIXME: rename this
+        baseurl  => 'http://xkcd.com',
+        infopath => 'info.0.json',
         @_,
     );
 
@@ -22,7 +22,7 @@ sub new {
 sub fetch {
     my $self = shift;
     my $base = $self->{'baseurl'};
-    my $file = $self->{'file'};
+    my $path = $self->{'infopath'};
     my ( $comic, $cb );
 
     # @_ = $num, $cb
@@ -38,7 +38,7 @@ sub fetch {
         }
     }
 
-    my $url = defined $comic ?  "$base/$comic/$file" : "$base/$file";
+    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
 
     $self->_http_get( $url, $cb );
 }
@@ -126,10 +126,9 @@ not a lot, if at all.
 
 Create a new L<WWW::xkcd> object.
 
-    # 'file' will probably be renamed
     my $xkcd = WWW::xkcd->new(
         base_url => 'http://www.xkcd.com',
-        file     => 'info.0.json',
+        infopath => 'info.0.json',
     );
 
 =head2 fetch

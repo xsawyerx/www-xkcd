@@ -25,23 +25,10 @@ sub fetch_metadata {
     my $path           = $self->{'infopath'};
     my ( $comic, $cb ) = $self->_parse_args(@_);
 
-    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
+    my $url = defined $comic ? "$base/$comic/$path" : "$base/$path";
 
-    return $self->_http_get( $url, $cb );
-}
-
-sub fetch_comic {
-    my $self           = shift;
-    my $base           = $self->{'baseurl'};
-    my $path           = $self->{'infopath'};
-    my ( $comic, $cb ) = $self->_parse_args(@_);
-
-    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
-    my $ncb  = sub {
-        my $meta = shift;
-        my $img  = $meta->{'img'};
-
-        # FIXME: this is copied and should be refactored
+    if ($cb) {
+        # this is async
         eval "use AnyEvent";
         $@ and croak 'AnyEvent is required for async mode';
 
@@ -49,13 +36,51 @@ sub fetch_comic {
         $@ and croak 'AnyEvent::HTTP is required for async mode';
 
         AnyEvent::HTTP::http_get( $url, sub {
-            my $img_data = shift;
+            my $body = shift;
+            my $meta = $self->_decode_json($body);
 
-            return $cb->( $img_data, $meta );
+            return $cb->($meta);
         } );
-    };
 
-    my $meta = $self->_http_get( $url, $ncb );
+        return 0;
+    } else {
+        # this is sync
+        my $result = HTTP::Tiny->new->get($url);
+
+        $result->{'success'} or croak "Can't fetch $url: " .
+            $result->{'reason'};
+
+        my $meta = $self->_decode_json( $result->{'content'} );
+
+        return $meta;
+    }
+
+    return 1;
+}
+
+sub fetch {
+    my $self           = shift;
+    my $base           = $self->{'baseurl'};
+    my $path           = $self->{'infopath'};
+    my ( $comic, $cb ) = $self->_parse_args(@_);
+
+    if ($cb) {
+        $self->fetch_metadata( $comic, sub {
+            my $meta = shift;
+            my $img  = $meta->{'img'};
+
+            AnyEvent::HTTP::http_get( $img, sub {
+                my $img_data = shift;
+
+                # call original callback
+                return $cb->( $img_data, $meta );
+            } );
+        } );
+
+        return 0;
+    }
+
+    my $meta = $self->fetch_metadata($comic);
     my $img  = $meta->{'img'};
 
     # FIXME: this is copied and should be refactored
@@ -65,18 +90,6 @@ sub fetch_comic {
         $result->{'reason'};
 
     return ( $result->{'content'}, $meta );
-}
-
-# fetch all
-sub fetch {
-    my $self = shift;
-    my $base = $self->{'baseurl'};
-    my $path = $self->{'infopath'};
-    my ( $comic, $cb ) = $self->_parse_args(@_);
-
-    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
-
-    return $self->_http_get( $url, $cb );
 }
 
 sub _parse_args {
@@ -202,23 +215,19 @@ Fetch both the metadata and image of a comic.
     # using callbacks for a specific one
     $xkcd->fetch( 20, sub { my ( $comic, $meta ) = @_; ... } );
 
-=head2 fetch_comic
-
-Fetch only the comic image itself.
-
-    my $img = $xkcd->fetch_comic;
-
-    # using callbacks for async mode
-    $xkcd->fetch_comic( sub { my $img = shift; ... } );
-
 =head2 fetch_metadata
 
-Fetch only the metadata of the comic.
+Fetch just the metadata of the comic.
 
     my $meta = $xkcd->fetch_metadata;
 
     # using callbacks for async mode
     $xkcd->fetch_metadata( sub { my $meta = shift; ... } );
+
+Why would you want to do this? Getting the comic and the metadata is another
+request to the server. If you're working on anything that doesn't require
+getting the actual image data, there's no need to run another request, is
+there? :)
 
 =head1 NAMING
 

@@ -8,11 +8,8 @@ use JSON;
 use Try::Tiny;
 use HTTP::Tiny;
 
-my $can_async;
-BEGIN {
-  eval { require AnyEvent; require AnyEvent::HTTP };
-  $can_async = !$@;
-}
+my $can_async = try   { require AnyEvent; require AnyEvent::HTTP; 1 }
+                catch { 0 };
 
 sub new {
     my $class = shift;

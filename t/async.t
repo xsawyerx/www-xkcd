@@ -13,35 +13,47 @@ eval 'use AnyEvent::HTTP';
 $@ and plan skip_all => 'AnyEvent::HTTP required for this test';
 
 # actual test
-plan tests => 9;
+plan tests => 16;
 
 my $x = WWW::xkcd->new;
 isa_ok( $x, 'WWW::xkcd' );
 can_ok( $x, 'fetch'     );
 
-# TODO: add timer that ends the cv so test doesn't linger when not working
-my $cv = AnyEvent->condvar;
-{
-    # just callback
-    $cv->begin;
-    $x->fetch( sub {
-        my $data = shift;
-        ok( $data, 'Successful fetch' );
-        is( ref $data, 'HASH', 'Correct data from fetch' );
-        ok( exists $data->{'title'}, 'Got title in data' );
-        $cv->end;
-    } );
+sub check_meta {
+    my $meta = shift;
+    ok( $meta, 'Successful fetch' );
+    is( ref $meta, 'HASH', 'Correct type of meta' );
+    ok( exists $meta->{'title'}, 'Got title in meta' );
+
+    if ( my $title = shift ) {
+        is( $meta->{'title'}, $title, 'Got correct title' );
+    }
 }
 
-{
-    # comic number and callback
+sub check_comic {
+    my $img = shift;
+    ok( $img, 'Got comic image' );
+}
+
+my $cv = AnyEvent->condvar;
+
+foreach my $param ( undef, 20 ) {
+    my @params = defined $param ? ($param) : ();
     $cv->begin;
-    $x->fetch( 20, sub {
-        my $data = shift;
-        ok( $data, 'Successful fetch' );
-        is( ref $data, 'HASH', 'Correct data from fetch' );
-        ok( exists $data->{'title'}, 'Got title in data' );
-        is( $data->{'title'}, 'Ferret', 'Fetched correct comic' );
+
+    $x->fetch_metadata( @params, sub {
+        my $meta = shift;
+        check_meta($meta);
+
+        $cv->end;
+    } );
+
+    $cv->begin;
+    $x->fetch( @params, sub {
+        my ( $img, $meta ) = @_;
+        check_meta($meta);
+        check_comic($img);
+
         $cv->end;
     } );
 }

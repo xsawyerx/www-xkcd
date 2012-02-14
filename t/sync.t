@@ -28,8 +28,6 @@ sub check_comic {
 foreach my $param ( undef, 20 ) {
     my @params = defined $param ? ($param) : ();
 
-    diag(@params);
-
     {
         # no comic number, metadata
         my $meta = $x->fetch_metadata(@params);

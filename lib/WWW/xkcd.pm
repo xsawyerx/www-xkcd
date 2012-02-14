@@ -40,7 +40,7 @@ sub fetch {
 
     my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
 
-    $self->_http_get( $url, $cb );
+    return $self->_http_get( $url, $cb );
 }
 
 sub _http_get {

@@ -19,28 +19,32 @@ my $x = WWW::xkcd->new;
 isa_ok( $x, 'WWW::xkcd' );
 can_ok( $x, 'fetch'     );
 
+# TODO: add timer that ends the cv so test doesn't linger when not working
+my $cv = AnyEvent->condvar;
 {
     # just callback
-    my $cv = $x->fetch( sub {
+    $cv->begin;
+    $x->fetch( sub {
         my $data = shift;
         ok( $data, 'Successful fetch' );
         is( ref $data, 'HASH', 'Correct data from fetch' );
         ok( exists $data->{'title'}, 'Got title in data' );
+        $cv->end;
     } );
-
-    $cv->recv;
 }
 
 {
     # comic number and callback
-    my $cv = $x->fetch( 20, sub {
+    $cv->begin;
+    $x->fetch( 20, sub {
         my $data = shift;
         ok( $data, 'Successful fetch' );
         is( ref $data, 'HASH', 'Correct data from fetch' );
         ok( exists $data->{'title'}, 'Got title in data' );
         is( $data->{'title'}, 'Ferret', 'Fetched correct comic' );
+        $cv->end;
     } );
-
-    $cv->recv;
 }
+
+$cv->recv;
 

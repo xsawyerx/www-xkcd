@@ -54,19 +54,16 @@ sub _http_get {
         eval 'use AnyEvent::HTTP';
         $@ and croak 'AnyEvent::HTTP is required for async mode';
 
-        my $cv = AnyEvent->condvar;
-
         AnyEvent::HTTP::http_get( $url, sub {
             my $body = shift;
             my $data = $self->_decode_json($body);
 
-            my $res  = $cb->($data);
-            $cv->send;
+            return $cb->($data);
         } );
 
-        return $cv;
+        return 0;
     } else {
-        # this is sync mode
+        # this is sync
         my $result = HTTP::Tiny->new->get($url);
 
         $result->{'success'} or croak "Can't fetch $url: " .
@@ -77,7 +74,7 @@ sub _http_get {
         return $data;
     }
 
-    return 0;
+    return 1;
 }
 
 sub _decode_json {

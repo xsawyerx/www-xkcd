@@ -113,41 +113,6 @@ sub _parse_args {
     return ( $comic, $cb );
 }
 
-sub _http_get {
-    my $self         = shift;
-    my ( $url, $cb ) = @_;
-
-    if ($cb) {
-        # this is async
-        eval "use AnyEvent";
-        $@ and croak 'AnyEvent is required for async mode';
-
-        eval 'use AnyEvent::HTTP';
-        $@ and croak 'AnyEvent::HTTP is required for async mode';
-
-        AnyEvent::HTTP::http_get( $url, sub {
-            my $body = shift;
-            my $meta = $self->_decode_json($body);
-
-            return $cb->($meta);
-        } );
-
-        return 0;
-    } else {
-        # this is sync
-        my $result = HTTP::Tiny->new->get($url);
-
-        $result->{'success'} or croak "Can't fetch $url: " .
-            $result->{'reason'};
-
-        my $meta = $self->_decode_json( $result->{'content'} );
-
-        return $meta;
-    }
-
-    return 1;
-}
-
 sub _decode_json {
     my $self = shift;
     my $json = shift;

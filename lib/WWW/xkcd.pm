@@ -23,6 +23,16 @@ sub fetch {
     my $self = shift;
     my $base = $self->{'baseurl'};
     my $path = $self->{'infopath'};
+    my ( $comic, $cb ) = $self->_parse_args(@_);
+
+    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
+
+    return $self->_http_get( $url, $cb );
+}
+
+sub _parse_args {
+    my $self = shift;
+    my @args = @_;
     my ( $comic, $cb );
 
     # @_ = $num, $cb
@@ -38,9 +48,7 @@ sub fetch {
         }
     }
 
-    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
-
-    return $self->_http_get( $url, $cb );
+    return ( $comic, $cb );
 }
 
 sub _http_get {

@@ -8,6 +8,12 @@ use JSON;
 use Try::Tiny;
 use HTTP::Tiny;
 
+my $can_async;
+BEGIN {
+  eval { require AnyEvent; require AnyEvent::HTTP };
+  $can_async = !$@;
+}
+
 sub new {
     my $class = shift;
     my %args  = (
@@ -29,11 +35,8 @@ sub fetch_metadata {
 
     if ($cb) {
         # this is async
-        eval "use AnyEvent";
-        $@ and croak 'AnyEvent is required for async mode';
-
-        eval 'use AnyEvent::HTTP';
-        $@ and croak 'AnyEvent::HTTP is required for async mode';
+        croak 'AnyEvent and AnyEvent::HTTP are required for async mode'
+            unless $can_async;
 
         AnyEvent::HTTP::http_get( $url, sub {
             my $body = shift;

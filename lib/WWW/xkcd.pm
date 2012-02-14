@@ -19,6 +19,55 @@ sub new {
     return bless { %args }, $class;
 }
 
+sub fetch_metadata {
+    my $self           = shift;
+    my $base           = $self->{'baseurl'};
+    my $path           = $self->{'infopath'};
+    my ( $comic, $cb ) = $self->_parse_args(@_);
+
+    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
+
+    return $self->_http_get( $url, $cb );
+}
+
+sub fetch_comic {
+    my $self           = shift;
+    my $base           = $self->{'baseurl'};
+    my $path           = $self->{'infopath'};
+    my ( $comic, $cb ) = $self->_parse_args(@_);
+
+    my $url = defined $comic ?  "$base/$comic/$path" : "$base/$path";
+    my $ncb  = sub {
+        my $meta = shift;
+        my $img  = $meta->{'img'};
+
+        # FIXME: this is copied and should be refactored
+        eval "use AnyEvent";
+        $@ and croak 'AnyEvent is required for async mode';
+
+        eval 'use AnyEvent::HTTP';
+        $@ and croak 'AnyEvent::HTTP is required for async mode';
+
+        AnyEvent::HTTP::http_get( $url, sub {
+            my $img_data = shift;
+
+            return $cb->( $img_data, $meta );
+        } );
+    };
+
+    my $meta = $self->_http_get( $url, $ncb );
+    my $img  = $meta->{'img'};
+
+    # FIXME: this is copied and should be refactored
+    my $result = HTTP::Tiny->new->get($img);
+
+    $result->{'success'} or croak "Can't fetch $img: " .
+        $result->{'reason'};
+
+    return ( $result->{'content'}, $meta );
+}
+
+# fetch all
 sub fetch {
     my $self = shift;
     my $base = $self->{'baseurl'};
@@ -65,9 +114,9 @@ sub _http_get {
 
         AnyEvent::HTTP::http_get( $url, sub {
             my $body = shift;
-            my $data = $self->_decode_json($body);
+            my $meta = $self->_decode_json($body);
 
-            return $cb->($data);
+            return $cb->($meta);
         } );
 
         return 0;
@@ -78,9 +127,9 @@ sub _http_get {
         $result->{'success'} or croak "Can't fetch $url: " .
             $result->{'reason'};
 
-        my $data = $self->_decode_json( $result->{'content'} );
+        my $meta = $self->_decode_json( $result->{'content'} );
 
-        return $data;
+        return $meta;
     }
 
     return 1;
@@ -139,20 +188,37 @@ Create a new L<WWW::xkcd> object.
 
 =head2 fetch
 
-Fetch the metadata of the comic. This method will probably be renamed, stay
-tuned.
+Fetch both the metadata and image of a comic.
 
     # fetching the latest
-    my $comic = $xkcd->fetch;
+    my ( $comic, $meta ) = $xkcd->fetch;
 
     # fetching a specific one
-    my $comic = $xkcd->fetch(20);
+    my ( $comic, $meta ) = $xkcd->fetch(20);
 
     # using callbacks for async mode
-    $xkcd->fetch( sub { my $comic = shift; ... } );
+    $xkcd->fetch( sub { my ( $comic, $meta ) = @_; ... } );
 
     # using callbacks for a specific one
-    $xkcd->fetch( 20, sub { my $comic = shift; ... } );
+    $xkcd->fetch( 20, sub { my ( $comic, $meta ) = @_; ... } );
+
+=head2 fetch_comic
+
+Fetch only the comic image itself.
+
+    my $img = $xkcd->fetch_comic;
+
+    # using callbacks for async mode
+    $xkcd->fetch_comic( sub { my $img = shift; ... } );
+
+=head2 fetch_metadata
+
+Fetch only the metadata of the comic.
+
+    my $meta = $xkcd->fetch_metadata;
+
+    # using callbacks for async mode
+    $xkcd->fetch_metadata( sub { my $meta = shift; ... } );
 
 =head1 NAMING
 

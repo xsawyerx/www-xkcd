@@ -165,23 +165,30 @@ __END__
 
     use WWW::xkcd;
     my $xkcd  = WWW::xkcd->new;
-    my $comic = $xkcd->fetch; # provides latest data
+    my ( $img, $comic ) = $xkcd->fetch; # provides latest comic
     say "Today's comic is titled: ", $comic->{'title'};
+
+    # and now to write it to file
+    use IO::All;
+    use File::Basename;
+    $img > io( basename $comic->{'img'} );
 
     # or in async mode
     $xkcd->fetch( sub {
-        my $comic = shift;
+        my ( $img, $comic ) = @_;
         say "Today's comic is titled: ", $comic->{'title'};
+
+        ...
     } );
 
 =head1 DESCRIPTION
 
-This module allows you to access xkcd comics (L<http://www.xkcd.com/>) using
+This module allows you to access xkcd comics (http://www.xkcd.com/) using
 the official API in synchronous mode (what people are used to) or in
 asynchronous mode.
 
 The asynchronous mode requires you have L<AnyEvent> and L<AnyEvent::HTTP>
-available. However, since it's just I<supported> and not I<crucial>, it is not
+available. However, since it's just I<supported> and not I<necessary>, it is not
 declared as a prerequisite.
 
 =head1 METHODS
@@ -215,6 +222,10 @@ Fetch both the metadata and image of a comic.
     # using callbacks for a specific one
     $xkcd->fetch( 20, sub { my ( $comic, $meta ) = @_; ... } );
 
+This runs two requests: one to get the metadata using the API and the second
+to get the image itself. If you don't need the image, it would be better (and
+faster) for you to use the C<fetch_metadata> method below.
+
 =head2 fetch_metadata
 
 Fetch just the metadata of the comic.
@@ -224,15 +235,10 @@ Fetch just the metadata of the comic.
     # using callbacks for async mode
     $xkcd->fetch_metadata( sub { my $meta = shift; ... } );
 
-Why would you want to do this? Getting the comic and the metadata is another
-request to the server. If you're working on anything that doesn't require
-getting the actual image data, there's no need to run another request, is
-there? :)
-
 =head1 NAMING
 
-Why would you call I<xkcd> with all lower cases? Simply because that's what
-Randall Munroe who writes xkcd prefers.
+Why would you call it WWW::I<xkcd> with all lower cases? Simply because that's
+what Randall Munroe who writes xkcd prefers.
 
 Taken verbatim from L<http://www.xkcd.com/about>:
 
@@ -254,6 +260,16 @@ Taken verbatim from L<http://www.xkcd.com/about>:
 =item * JSON
 
 =item * Carp
+
+=back
+
+=head1 OPTIONAL DEPENDENCIES
+
+=over 4
+
+=item * AnyEvent
+
+=item * AnyEvent::HTTP
 
 =back
 

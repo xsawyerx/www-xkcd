@@ -13,7 +13,7 @@ eval 'use AnyEvent::HTTP';
 $@ and plan skip_all => 'AnyEvent::HTTP required for this test';
 
 # actual test
-plan tests => 16;
+plan tests => 18;
 
 my $x = WWW::xkcd->new;
 isa_ok( $x, 'WWW::xkcd' );
@@ -25,8 +25,8 @@ sub check_meta {
     is( ref $meta, 'HASH', 'Correct type of meta' );
     ok( exists $meta->{'title'}, 'Got title in meta' );
 
-    if ( my $title = shift ) {
-        is( $meta->{'title'}, $title, 'Got correct title' );
+    if ( shift ) {
+        is( $meta->{'title'}, 'Ferret', 'Got correct title' );
     }
 }
 
@@ -43,7 +43,7 @@ foreach my $param ( undef, 20 ) {
 
     $x->fetch_metadata( @params, sub {
         my $meta = shift;
-        check_meta($meta);
+        check_meta( $meta, @params );
 
         $cv->end;
     } );
@@ -51,7 +51,7 @@ foreach my $param ( undef, 20 ) {
     $cv->begin;
     $x->fetch( @params, sub {
         my ( $img, $meta ) = @_;
-        check_meta($meta);
+        check_meta( $meta, @params );
         check_comic($img);
 
         $cv->end;

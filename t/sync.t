@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use WWW::xkcd;
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 my $x = WWW::xkcd->new;
 isa_ok( $x, 'WWW::xkcd' );
@@ -15,8 +15,8 @@ sub check_meta {
     is( ref $meta, 'HASH', 'Correct type of meta' );
     ok( exists $meta->{'title'}, 'Got title in meta' );
 
-    if ( my $title = shift ) {
-        is( $meta->{'title'}, $title, 'Got correct title' );
+    if ( shift ) {
+        is( $meta->{'title'}, 'Ferret', 'Got correct title' );
     }
 }
 
@@ -31,12 +31,12 @@ foreach my $param ( undef, 20 ) {
     {
         # no comic number, metadata
         my $meta = $x->fetch_metadata(@params);
-        check_meta($meta);
+        check_meta( $meta, @params );
     }
 
     {
         my ( $img, $meta ) = $x->fetch(@params);
-        check_meta($meta);
+        check_meta( $meta, @params );
         check_comic($img);
     }
 }

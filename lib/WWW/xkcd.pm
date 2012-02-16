@@ -80,10 +80,8 @@ sub fetch {
         return 0;
     }
 
-    my $meta = $self->fetch_metadata($comic);
-    my $img  = $meta->{'img'};
-
-    # FIXME: this is copied and should be refactored
+    my $meta   = $self->fetch_metadata($comic);
+    my $img    = $meta->{'img'};
     my $result = HTTP::Tiny->new->get($img);
 
     $result->{'success'} or croak "Can't fetch $img: " .

@@ -1,5 +1,12 @@
 Revision history for Perl extension WWW::xkcd.
 
+0.004   16.02.12
+        * Load AnyEvent/AnyEvent::HTTP using Try::Tiny only once. (Joel Berger)
+        * Major Dzil changes: (Joel Berger)
+            - Adding metadata (repo, etc.).
+            - Adding recommends of AnyEvent/AnyEvent::HTTP.
+            - Create Readme POD automatically.
+
 0.003   14.02.12
         * Removed unused method.
 

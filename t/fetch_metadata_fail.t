@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 8;
 use Test::Fatal;
 
 # this makes the $can_async return false
@@ -69,8 +69,8 @@ SKIP: {
     $@ and skip 'AnyEvent is needed for this test' => 1;
 
     like(
-        exception { $x->fetch_metadata(100) },
-        qr/bwahaha/,
+        exception { $x->fetch_metadata(100, sub {1} ) },
+        qr/^\QAnyEvent and AnyEvent::HTTP are required for async mode\E/,
         'Failed in async as well',
     );
 };

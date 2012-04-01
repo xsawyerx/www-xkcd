@@ -43,19 +43,17 @@ sub fetch_metadata {
         } );
 
         return 0;
-    } else {
-        # this is sync
-        my $result = HTTP::Tiny->new->get($url);
-
-        $result->{'success'} or croak "Can't fetch $url: " .
-            $result->{'reason'};
-
-        my $meta = $self->_decode_json( $result->{'content'} );
-
-        return $meta;
     }
 
-    return 1;
+    # this is sync
+    my $result = HTTP::Tiny->new->get($url);
+
+    $result->{'success'} or croak "Can't fetch $url: " .
+        $result->{'reason'};
+
+    my $meta = $self->_decode_json( $result->{'content'} );
+
+    return $meta;
 }
 
 sub fetch {

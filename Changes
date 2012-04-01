@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW::xkcd.
 
+0.005   02.04.12
+        * Provide 100% test coverage, why not.
+
 0.004   16.02.12
         * Load AnyEvent/AnyEvent::HTTP using Try::Tiny only once. (Joel Berger)
         * Major Dzil changes: (Joel Berger)

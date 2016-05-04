@@ -58,10 +58,20 @@ sub fetch_metadata {
 
 sub fetch_random {
     my $self           = shift;
-    # at the moment this is sync, but fetch can go async
+    my $callback       = shift if ref $_[0];
+    
+    if ($callback) {
+        $self->fetch_metadata( sub {
+            my $metadata = shift;
+            my $random   = int(rand($metadata->{num})) + 1;
+            return $self->fetch($random, $callback);
+        } );
+        return 0;
+    }
+
     my $metadata       = $self->fetch_metadata;
     my $random         = int(rand($metadata->{num})) + 1;
-    return $self->fetch($random, @_);
+    return $self->fetch($random);
 }
 
 sub fetch {

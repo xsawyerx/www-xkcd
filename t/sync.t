@@ -3,11 +3,11 @@ use strict;
 use warnings;
 
 use WWW::xkcd;
-use Test::More tests => 18;
+use Test::More tests => 22;
 
 my $x = WWW::xkcd->new;
 isa_ok( $x, 'WWW::xkcd' );
-can_ok( $x, qw/fetch fetch_metadata/ );
+can_ok( $x, qw/fetch fetch_metadata fetch_random/ );
 
 sub check_meta {
     my $meta = shift;
@@ -41,3 +41,6 @@ foreach my $param ( undef, 20 ) {
     }
 }
 
+my ($rnd_img, $rnd_meta) = $x->fetch_random;
+check_meta($rnd_meta);
+check_comic($rnd_img);

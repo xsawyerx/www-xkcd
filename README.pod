@@ -1,5 +1,7 @@
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 WWW::xkcd - Synchronous and asynchronous interfaces to xkcd comics
@@ -14,6 +16,9 @@ version 0.005
     my $xkcd  = WWW::xkcd->new;
     my ( $img, $comic ) = $xkcd->fetch; # provides latest comic
     say "Today's comic is titled: ", $comic->{'title'};
+
+    # random comic
+    my ( $img, $comic ) = $xkcd->fetch_random;
 
     # and now to write it to file
     use IO::All;
@@ -131,3 +136,4 @@ This software is copyright (c) 2012 by Sawyer X.
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
+=cut

@@ -56,6 +56,14 @@ sub fetch_metadata {
     return $meta;
 }
 
+sub fetch_random {
+    my $self           = shift;
+    # at the moment this is sync, but fetch can go async
+    my $metadata       = $self->fetch_metadata;
+    my $random         = int(rand($metadata->{num})) + 1;
+    return $self->fetch($random, @_);
+}
+
 sub fetch {
     my $self           = shift;
     my $base           = $self->{'baseurl'};
@@ -129,6 +137,9 @@ __END__
     my ( $img, $comic ) = $xkcd->fetch; # provides latest comic
     say "Today's comic is titled: ", $comic->{'title'};
 
+    # random comic
+    my ( $img, $comic ) = $xkcd->fetch_random;
+
     # and now to write it to file
     use IO::All;
     use File::Basename;
@@ -195,6 +206,13 @@ Fetch just the metadata of the comic.
 
     # using callbacks for async mode
     $xkcd->fetch_metadata( sub { my $meta = shift; ... } );
+
+=head2 fetch_random
+
+Works just like C<fetch>, but instead of retrieving the latest comic, or the
+one specified, just gets a random comic. It can also receive a callback for
+retrieving the comic. Nevertheless, at the current time, the request to
+get current number of availble comics is still synchronous.
 
 =head1 NAMING
 

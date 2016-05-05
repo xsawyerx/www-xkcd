@@ -13,11 +13,9 @@ eval 'use AnyEvent::HTTP';
 $@ and plan skip_all => 'AnyEvent::HTTP required for this test';
 
 # actual test
-plan tests => 22;
+plan tests => 20;
 
 my $x = WWW::xkcd->new;
-isa_ok( $x, 'WWW::xkcd' );
-can_ok( $x, 'fetch'     );
 
 sub check_meta {
     my $meta = shift;

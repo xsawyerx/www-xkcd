@@ -13,11 +13,9 @@ eval 'use AnyEvent::HTTP';
 $@ and plan skip_all => 'AnyEvent::HTTP required for this test';
 
 # actual test
-plan tests => 18;
+plan tests => 20;
 
 my $x = WWW::xkcd->new;
-isa_ok( $x, 'WWW::xkcd' );
-can_ok( $x, 'fetch'     );
 
 sub check_meta {
     my $meta = shift;
@@ -58,5 +56,17 @@ foreach my $param ( undef, 20 ) {
     } );
 }
 
+$cv->begin;
+$x->fetch_random( sub {
+        my ( $img, $meta ) = @_;
+        check_meta($meta);
+        check_comic($img);
+
+        $cv->end;
+    } );
+
+
 $cv->recv;
+
+
 

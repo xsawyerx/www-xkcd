@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW::xkcd.
 
+0.006   
+        * Added fetch_random() method (Alberto Simões)
+
 0.005   02.04.12
         * Provide 100% test coverage, why not.
 

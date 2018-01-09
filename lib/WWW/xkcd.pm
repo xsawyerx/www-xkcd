@@ -1,8 +1,8 @@
-use strict;
-use warnings;
 package WWW::xkcd;
 # ABSTRACT: Synchronous and asynchronous interfaces to xkcd comics
 
+use strict;
+use warnings;
 use Carp;
 use JSON;
 use Try::Tiny;

@@ -58,9 +58,9 @@ sub fetch_metadata {
 
 sub fetch_random {
     my $self           = shift;
-    my $callback       = shift if ref $_[0];
-    
-    if ($callback) {
+    my $callback       = shift;
+
+    if ( $callback && ref $callback ) {
         $self->fetch_metadata( sub {
             my $metadata = shift;
             my $random   = int(rand($metadata->{'num'})) + 1;

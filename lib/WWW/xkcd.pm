@@ -4,12 +4,10 @@ package WWW::xkcd;
 use strict;
 use warnings;
 use Carp;
-use Try::Tiny;
 use JSON::MaybeXS;
 use HTTP::Tiny;
 
-my $can_async = try   { require AnyEvent; require AnyEvent::HTTP; 1 }
-                catch { 0 };
+my $can_async = eval { require AnyEvent; require AnyEvent::HTTP; 1 };
 
 sub new {
     my $class = shift;
@@ -130,8 +128,12 @@ sub _parse_args {
 sub _decode_json {
     my $self = shift;
     my $json = shift;
-    my $data = try   { decode_json $json                }
-               catch { croak "Can't decode '$json': $_" };
+    my $data = {};
+
+    eval { $data = decode_json $json; 1; } or do {
+        my $error = $@ || 'Zombie error';
+        croak "Can't decode '$json': $error";
+    };
 
     return $data;
 }

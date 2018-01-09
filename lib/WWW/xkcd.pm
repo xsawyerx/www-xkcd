@@ -32,8 +32,8 @@ sub fetch_metadata {
 
     if ($cb) {
         # this is async
-        croak 'AnyEvent and AnyEvent::HTTP are required for async mode'
-            unless $can_async;
+        $can_async
+            or croak 'AnyEvent and AnyEvent::HTTP are required for async mode';
 
         AnyEvent::HTTP::http_get( $url, sub {
             my $body = shift;

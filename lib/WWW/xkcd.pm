@@ -14,8 +14,8 @@ my $can_async = try   { require AnyEvent; require AnyEvent::HTTP; 1 }
 sub new {
     my $class = shift;
     my %args  = (
-        baseurl  => 'http://xkcd.com',
-        infopath => 'info.0.json',
+        'baseurl'  => 'http://xkcd.com',
+        'infopath' => 'info.0.json',
         @_,
     );
 
@@ -63,14 +63,14 @@ sub fetch_random {
     if ($callback) {
         $self->fetch_metadata( sub {
             my $metadata = shift;
-            my $random   = int(rand($metadata->{num})) + 1;
+            my $random   = int(rand($metadata->{'num'})) + 1;
             return $self->fetch($random, $callback);
         } );
         return 0;
     }
 
     my $metadata       = $self->fetch_metadata;
-    my $random         = int(rand($metadata->{num})) + 1;
+    my $random         = int(rand($metadata->{'num'})) + 1;
     return $self->fetch($random);
 }
 

@@ -4,8 +4,8 @@ package WWW::xkcd;
 use strict;
 use warnings;
 use Carp;
-use JSON;
 use Try::Tiny;
+use JSON::MaybeXS;
 use HTTP::Tiny;
 
 my $can_async = try   { require AnyEvent; require AnyEvent::HTTP; 1 }

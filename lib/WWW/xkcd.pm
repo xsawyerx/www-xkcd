@@ -12,7 +12,7 @@ my $can_async = eval { require AnyEvent; require AnyEvent::HTTP; 1 };
 sub new {
     my $class = shift;
     my %args  = (
-        'baseurl'  => 'http://xkcd.com',
+        'baseurl'  => 'https://xkcd.com',
         'infopath' => 'info.0.json',
         @_,
     );
@@ -130,9 +130,11 @@ sub _decode_json {
     my $json = shift;
     my $data = {};
 
+    defined $json or $json = '';
+
     eval { $data = decode_json $json; 1; } or do {
         my $error = $@ || 'Zombie error';
-        croak "Can't decode '$json': $error";
+        croak "Can't decode JSON content '$json': $error";
     };
 
     return $data;

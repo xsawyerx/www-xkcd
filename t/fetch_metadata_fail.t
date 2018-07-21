@@ -46,7 +46,7 @@ use Test::Fatal;
         my $img  = shift;
 
         isa_ok( $self, 'HTTP::Tiny' );
-        is( $img, 'http://xkcd.com/100/info.0.json', 'Correct img' );
+        is( $img, 'https://xkcd.com/100/info.0.json', 'Correct img' );
 
         # this is purposely missing 'success' key
         return { reason => 'bwahaha' };

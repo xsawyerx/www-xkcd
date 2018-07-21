@@ -225,8 +225,7 @@ Fetch just the metadata of the comic.
 
 Works just like C<fetch>, but instead of retrieving the latest comic, or the
 one specified, just gets a random comic. It can also receive a callback for
-retrieving the comic. Nevertheless, at the current time, the request to
-get current number of availble comics is still synchronous.
+retrieving the comic.
 
 =head1 NAMING
 
